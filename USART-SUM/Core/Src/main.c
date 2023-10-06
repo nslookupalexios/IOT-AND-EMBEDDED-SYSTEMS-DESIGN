@@ -49,7 +49,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-extern uint8_t UART2_buffer[];
+extern uint8_t UART2_buffer[]; //
 extern volatile uint8_t pending_interrupt;
 uint32_t main_buffer[BUFFER_SIZE] = {0};
 char temp_buffer[BUFFER_SIZE];

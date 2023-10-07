@@ -103,6 +103,26 @@ uint32_t int_to_str(uint32_t num, uint8_t* buffer) {
     return len;
 }
 
+
+
+void console_log(const char* message){
+    int message_size = strlen(message);
+    static char send[BUFFER_SIZE];
+    // If the message is empty, simply return
+    if(message_size > BUFFER_SIZE-3){
+    	strcpy(send, "ConsoleLogError!\r\n");
+    	HAL_UART_Transmit_IT(&huart2, (uint8_t *)send, strlen(send));
+    	return;
+    }
+
+    // Create a buffer to hold the message and the "\r\n"
+
+    strcpy(send, message);  // Copy the original message
+    strcat(send, "\r\n");  // Append the newline
+
+    HAL_UART_Transmit_IT(&huart2, (uint8_t *)send, strlen(send));
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -143,6 +163,7 @@ int main(void)
   HAL_GPIO_WritePin(GPIOA, LD2_Pin, 1);
   HAL_Delay(1000);
   HAL_GPIO_WritePin(GPIOA, LD2_Pin, 0);
+  console_log("Console Log Test ok!");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -154,10 +175,12 @@ int main(void)
 
 			  HAL_UART_Transmit_IT(&huart2, UART2_buffer, HAL_UART_BUFFER_LEN);
 			  if(is_a_digit(*UART2_buffer)){
+				  console_log("Si tratta di un DIGIT.");
 				  temp_buffer[temp_buffer_index++] = (char)(*UART2_buffer);
 			  }
 
 			  else if((*UART2_buffer)==' '){
+				  console_log("Si tratta di uno SPAZIO.");
 				  temp_buffer[temp_buffer_index] = '\0';
 				  temp_buffer_index = 0;
 
@@ -171,6 +194,7 @@ int main(void)
 			  }
 
 			  else if ((*UART2_buffer)=='.'){
+				  console_log("Si tratta di un punto.");
 				  uint32_t sum = sum_array(main_buffer,main_buffer_index);
 				  main_buffer_index = 0;
 				  main_buffer[main_buffer_index] = 0;
@@ -178,7 +202,6 @@ int main(void)
 				  uint32_t transmit_len = int_to_str(sum,to_transmit);
 				  HAL_UART_Transmit(&huart2, to_transmit, transmit_len, HAL_UART_MAX_TX_DELAY);
 			  }
-			  pending_interrupt = FALSE;
 		  }
 	  }
     /* USER CODE END WHILE */

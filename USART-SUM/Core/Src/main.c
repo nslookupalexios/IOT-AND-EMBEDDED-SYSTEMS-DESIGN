@@ -105,22 +105,22 @@ uint32_t int_to_str(uint32_t num, uint8_t* buffer) {
 
 
 
-void console_log(const char* message){
+void console_log(const char* message, uint8_t new_line){
     int message_size = strlen(message);
     static char send[BUFFER_SIZE];
     // If the message is empty, simply return
     if(message_size > BUFFER_SIZE-3){
     	strcpy(send, "ConsoleLogError!\r\n");
-    	HAL_UART_Transmit_IT(&huart2, (uint8_t *)send, strlen(send));
+    	HAL_UART_Transmit(&huart2, (uint8_t *)send, strlen(send),HAL_UART_MAX_TX_DELAY);
     	return;
     }
 
     // Create a buffer to hold the message and the "\r\n"
 
     strcpy(send, message);  // Copy the original message
-    strcat(send, "\r\n");  // Append the newline
+    if(new_line == 1) strcat(send, "\r\n");  // Append the newline
 
-    HAL_UART_Transmit_IT(&huart2, (uint8_t *)send, strlen(send));
+    HAL_UART_Transmit(&huart2, (uint8_t *)send, strlen(send),HAL_UART_MAX_TX_DELAY);
 }
 
 /* USER CODE END 0 */
@@ -163,24 +163,21 @@ int main(void)
   HAL_GPIO_WritePin(GPIOA, LD2_Pin, 1);
   HAL_Delay(1000);
   HAL_GPIO_WritePin(GPIOA, LD2_Pin, 0);
-  console_log("Console Log Test ok!");
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  console_log("\r\n---------------------\r\nInserisci un numero: ",0);
   while (1)
   {
-	  while(pending_interrupt == TRUE){
-		  if ((HAL_UART_Receive_IT(&huart2, UART2_buffer, HAL_UART_BUFFER_LEN) == HAL_OK)){
-
-			  HAL_UART_Transmit_IT(&huart2, UART2_buffer, HAL_UART_BUFFER_LEN);
+	  if(pending_interrupt == TRUE){
+		  if ((HAL_UART_Receive(&huart2, UART2_buffer, HAL_UART_BUFFER_LEN, HAL_UART_MAX_RCV_DELAY) == HAL_OK)){
 			  if(is_a_digit(*UART2_buffer)){
-				  console_log("Si tratta di un DIGIT.");
+				  HAL_UART_Transmit(&huart2, UART2_buffer, HAL_UART_BUFFER_LEN, HAL_UART_MAX_TX_DELAY);
 				  temp_buffer[temp_buffer_index++] = (char)(*UART2_buffer);
 			  }
 
 			  else if((*UART2_buffer)==' '){
-				  console_log("Si tratta di uno SPAZIO.");
 				  temp_buffer[temp_buffer_index] = '\0';
 				  temp_buffer_index = 0;
 
@@ -190,19 +187,23 @@ int main(void)
 				  if (*endptr == '\0' && value <= UINT32_MAX) {
 				      main_buffer[main_buffer_index++] = (uint32_t)value;
 				  }
-
+				  console_log("\r\nNumero acquisito con succeso.\r\nInserisci un numero: ",0);
 			  }
 
 			  else if ((*UART2_buffer)=='.'){
-				  console_log("Si tratta di un punto.");
-				  uint32_t sum = sum_array(main_buffer,main_buffer_index);
+				  unsigned long sum = sum_array(main_buffer,main_buffer_index);
 				  main_buffer_index = 0;
 				  main_buffer[main_buffer_index] = 0;
-				  uint8_t to_transmit[5];
-				  uint32_t transmit_len = int_to_str(sum,to_transmit);
-				  HAL_UART_Transmit(&huart2, to_transmit, transmit_len, HAL_UART_MAX_TX_DELAY);
+				  char to_transmit[BUFFER_SIZE];
+				  sprintf(to_transmit,"\r\nSomma computata: %lu",sum);
+				  console_log(to_transmit,1);
+				  console_log("\r\nInserisci un numero: ",0);
+			  }
+			  else {
+				  console_log("\r\nImpossibile classificare il carattere.\r\nInserisci un numero:",0);
 			  }
 		  }
+		  //pending_interrupt = FALSE; Non capisco perché se lo decommento non partono più le IT.
 	  }
     /* USER CODE END WHILE */
 

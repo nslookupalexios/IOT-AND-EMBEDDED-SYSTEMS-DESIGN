@@ -171,7 +171,7 @@ int main(void)
   while (1)
   {
 	  if(pending_interrupt == TRUE){
-		  if ((HAL_UART_Receive(&huart2, UART2_buffer, HAL_UART_BUFFER_LEN, HAL_UART_MAX_RCV_DELAY) == HAL_OK)){
+		  if ((HAL_UART_Receive_IT(&huart2, UART2_buffer, HAL_UART_BUFFER_LEN) == HAL_OK)){
 			  if(is_a_digit(*UART2_buffer)){
 				  HAL_UART_Transmit(&huart2, UART2_buffer, HAL_UART_BUFFER_LEN, HAL_UART_MAX_TX_DELAY);
 				  temp_buffer[temp_buffer_index++] = (char)(*UART2_buffer);
@@ -203,7 +203,7 @@ int main(void)
 				  console_log("\r\nImpossibile classificare il carattere.\r\nInserisci un numero:",0);
 			  }
 		  }
-		  //pending_interrupt = FALSE; Non capisco perché se lo decommento non partono più le IT.
+		  pending_interrupt = FALSE;
 	  }
     /* USER CODE END WHILE */
 

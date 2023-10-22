@@ -58,9 +58,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t Buffer[25] = {0};
-static const uint8_t Space[] = ".";
-static const uint8_t StartMSG[] = "Starting I2C Scanning: \r\n";
 /* USER CODE END 0 */
 
 /**
@@ -70,9 +67,7 @@ static const uint8_t StartMSG[] = "Starting I2C Scanning: \r\n";
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	HAL_StatusTypeDef ret = HAL_ERROR;
-	uint8_t n_devices = 0;
-	uint8_t EndMSG[100];
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -94,29 +89,12 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
-  MX_I2C1_Init();
-
+  MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
   HAL_Delay(1000);
 
-  //i2c_ports_scan(&hi2c1,&huart2,1000,3);
+  i2c_ports_scan(&hi2c3,&huart2,1000,3);
 
-  HAL_UART_Transmit(&huart2, StartMSG, sizeof(StartMSG), 10000);
-  for(int i=1; i<128; i++)
-  {
-	  ret = HAL_I2C_IsDeviceReady(&hi2c1, (uint16_t)(i<<1), 3, 5);
-	  if (ret != HAL_OK) // No ACK Received At That Address
-	  {
-		  HAL_UART_Transmit(&huart2, Space, sizeof(Space), 10000);
-	  }
-	  else if(ret == HAL_OK)   {
-		  n_devices++;
-		  sprintf(Buffer, "0x%x", (uint16_t)(i<<1));
-		  HAL_UART_Transmit(&huart2, Buffer, strlen(Buffer), 10000);
-	  }
-  }
-       sprintf(EndMSG, "\r\nDone! Founded %d devices\r\n\r\n", n_devices);
-       HAL_UART_Transmit(&huart2, EndMSG, strlen(EndMSG), 10000);
 
   /* USER CODE END 2 */
 

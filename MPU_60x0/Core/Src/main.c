@@ -24,7 +24,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "i2c_tools.h"
+#include "uart_tools.h"
+#include "mpu60x0.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -66,7 +69,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+	uint8_t who_am_i;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -90,6 +93,12 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
+  i2c_ports_scan(&hi2c3,&huart2,HAL_MAX_DELAY,3);
+  HAL_Delay(1000);
+  MPU60X0_I2C_who_am_i(&hi2c3,&who_am_i,HAL_I2C_Mem_Read,100);
+  char msg[100];
+  sprintf(msg,"Lettura registro who am i:\t0x%x",who_am_i);
+  UART_TransmitString(&huart2, msg, 100);
 
   /* USER CODE END 2 */
 

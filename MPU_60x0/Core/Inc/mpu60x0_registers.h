@@ -99,6 +99,7 @@
 #define FIFO_COUNT_L              		115U
 #define FIFO_READ_WRITE           		116U
 #define WHO_AM_I                  		117U
-
+#define POWER_MNG_1_DEFAULT_STAUTS		64U
+#define EN_INTERNAL_CLOCK				0U
 
 #endif /* INC_MPU60X0_REGISTERS_H_ */

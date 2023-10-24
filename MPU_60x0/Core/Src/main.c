@@ -99,7 +99,12 @@ int main(void)
   char msg[100];
   sprintf(msg,"Lettura registro who am i:\t0x%x",who_am_i);
   UART_TransmitString(&huart2, msg, 100);
-
+  uint8_t ret = MPU60X0_I2C_reset(&hi2c3, HAL_I2C_Mem_Read, HAL_I2C_Mem_Write, 100);
+  if(ret == HAL_OK){
+	  UART_TransmitString(&huart2, "\r\nDEVICE RESET OK!", 100);
+  } else {
+	  UART_TransmitString(&huart2, "\r\nDEVICE RESET ERROR!", 100);
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */

@@ -9,6 +9,7 @@
 #define INC_MPU60X0_H_
 
 #include "mpu60x0_registers.h"
+#include "mpu60x0_commands.h"
 #include "i2c.h"
 
 /**
